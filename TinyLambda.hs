@@ -31,7 +31,7 @@ module TinyLambda (
   irreducible, applyIrreducible,
   makeVariable, makeLambda, makeApplication,
   -- * Parsing terms
-  parse, parseParenthesized,
+  parse, parseLexed,
   -- * Top-level interaction
   emptyEnv,
   interaction, main,
@@ -128,23 +128,17 @@ makeApplication fun arg env = apply (fun env) (arg env)
 -- Parsing terms
 
 -- | Parser for a term.
-parse :: ReadS OpenTerm
-parse str =
-  readParen True parseParenthesized str ++
-  [(makeVariable var, str') |
-   (var, str') <- lex str]
+parse :: String -> (OpenTerm, String)
+parse str = parseLexed (head (lex str))
 
--- | Helper parser for a parenthesized part of a term (lambda or
--- application).
-parseParenthesized :: ReadS OpenTerm
-parseParenthesized ('λ' : str) =
-  [(makeLambda var body, str'') |
-   (var, '.' : str') <- lex str,
-   (body, str'') <- parse str']
-parseParenthesized str =
-  [(makeApplication fun arg, str'') |
-   (fun, str') <- parse str,
-   (arg, str'') <- parse str']
+parseLexed :: (String, String) -> (OpenTerm, String)
+parseLexed ("(", 'λ' : str) = (makeLambda var body, rest')
+  where [(var, '.' : rest)] = lex str
+        (body, ')' : rest') = parse rest
+parseLexed ("(", str) = (makeApplication fun arg, rest')
+  where (fun, rest) = parse str
+        (arg, ')' : rest') = parse rest
+parseLexed (var, str) = (makeVariable var, str)
 
 -- Top-level interaction
 
@@ -155,9 +149,8 @@ emptyEnv = []
 -- | Parse an input term with a newline, and display a normalized
 -- output term with a newline.
 interaction :: String -> String
-interaction input =
-  concat [display (openTerm emptyEnv) firstFresh ++ [newline] |
-          (openTerm, [newline]) <- parse input]
+interaction input = display (openTerm emptyEnv) firstFresh ++ [newline]
+  where (openTerm, [newline]) = parse input
 
 -- | Entry point.
 main :: IO ()
