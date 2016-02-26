@@ -5,4 +5,4 @@ p=q.head.lex
 q("(",'λ':s)|[(w,_:t)]<-lex s,(b,_:u)<-p t=(\e->T<*>l$b.(:e).(,)w,u)
 q("(",s)|(f,t)<-p s,(x,_:u)<-p t=(a.f<*>x,u)
 q(v,s)=(foldl1 a.lookup v,s)
-main=interact$(\(f,[n])->f[]%"x"++[n]).p
+main=interact$(\(f,n)->f[]%"x"++n).p

@@ -149,8 +149,8 @@ emptyEnv = []
 -- | Parse an input term with a newline, and display a normalized
 -- output term with a newline.
 interaction :: String -> String
-interaction input = display (openTerm emptyEnv) firstFresh ++ [newline]
-  where (openTerm, [newline]) = parse input
+interaction input = display (openTerm emptyEnv) firstFresh ++ newline
+  where (openTerm, newline) = parse input
 
 -- | Entry point.
 main :: IO ()
