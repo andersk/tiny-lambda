@@ -129,16 +129,16 @@ makeApplication fun arg env = apply (fun env) (arg env)
 
 -- | Parser for a term.
 parse :: String -> (OpenTerm, String)
-parse str = parseLexed (head (lex str))
+parse str = parseLexed (lex str)
 
-parseLexed :: (String, String) -> (OpenTerm, String)
-parseLexed ("(", 'λ' : str) = (makeLambda var body, rest')
+parseLexed :: [(String, String)] -> (OpenTerm, String)
+parseLexed [("(", 'λ' : str)] = (makeLambda var body, rest')
   where [(var, '.' : rest)] = lex str
         (body, ')' : rest') = parse rest
-parseLexed ("(", str) = (makeApplication fun arg, rest')
+parseLexed [("(", str)] = (makeApplication fun arg, rest')
   where (fun, rest) = parse str
         (arg, ')' : rest') = parse rest
-parseLexed (var, str) = (makeVariable var, str)
+parseLexed [(var, str)] = (makeVariable var, str)
 
 -- Top-level interaction
 
